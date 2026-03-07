@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn" title="Volver al inicio">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+    <span>Volver</span>
+	</a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">Roxette</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "Roxette",
+            cover: "img/roxette.png", // Cambia por tu imagen
+            tracks: [
+               { title: "Church Of Your Heart", file: "musica/Church Of Your Heart.mp3" },
+               { title: "Dangerous", file: "musica/Dangerous.mp3" },
+               { title: "Dressed For Success", file: "musica/Dressed For Success.mp3" },
+               { title: "How Do You Do", file: "musica/How Do You Do.mp3" },
+               { title: "It Must Have Been Love", file: "musica/It Must Have Been Love.mp3" },
+               { title: "Joyride", file: "musica/Joyride.mp3" },
+               { title: "Listen To Your Heart", file: "musica/Listen To Your Heart.mp3" },
+               { title: "Real Sugar", file: "musica/Real Sugar.mp3" },
+               { title: "Run To You", file: "musica/Run To You.mp3" },
+               { title: "Sleeping In My Car", file: "musica/Sleeping In My Car.mp3" },
+               { title: "Spending My Time", file: "musica/Spending My Time.mp3" },
+               { title: "Stupid", file: "musica/Stupid.mp3" },
+               { title: "The Big L", file: "musica/The Big L.mp3" },
+               { title: "The Look", file: "musica/The Look.mp3" },
+               { title: "You Dont Understand Me", file: "musica/You Dont Understand Me.mp3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>
