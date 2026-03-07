@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn">
+        <span>«</span> Volver a la Radio
+    </a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">The Beatles</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "The Beatles",
+            cover: "img/beatles.png", // Cambia por tu imagen
+            tracks: [
+               { title: "A hard days night", file: "musica/A hard days night.mp3" },
+               { title: "A little help from my friends", file: "musica/A little help from my friends.mp3" },
+               { title: "Across the universe", file: "musica/Across the universe.mp3" },
+               { title: "All my loving", file: "musica/All my loving.mp3" },
+               { title: "All you need is love", file: "musica/All you need is love.mp3" },
+               { title: "Beautiful boy", file: "musica/Beautiful boy.mp3" },
+               { title: "Cant buy me love", file: "musica/Cant buy me love.mp3" },
+               { title: "Carry That Weight", file: "musica/Carry That Weight.mp3" },
+               { title: "Come Together", file: "musica/Come Together.mp3" },
+               { title: "Day tripper", file: "musica/Day tripper.mp3" },
+               { title: "Dont let me down", file: "musica/Dont let me down.mp3" },
+               { title: "Get back", file: "musica/Get back.mp3" },
+               { title: "Golden Slumbers", file: "musica/Golden Slumbers.mp3" },
+               { title: "Help",file: "musica/Help.mp3" },
+               { title: "Here Comes The Sun", file: "musica/Here Comes The Sun.mp3" },
+               { title: "Hey Jude", file: "musica/Hey Jude.mp3" },
+               { title: "I got a feeling", file: "musica/I got a feeling.mp3" },
+               { title: "I wanna hold your hand", file: "musica/I wanna hold your hand.mp3" },
+               { title: "Lady Madonna", file: "musica/Lady Madonna.mp3" },
+               { title: "Love me do", file: "musica/Love me do.mp3" },
+               { title: "Michelle", file: "musica/Michelle.mp3" },
+               { title: "Ob la di Ob la da", file: "musica/Ob la di Ob la da.mp3" },
+               { title: "Oh Darling", file: "musica/Oh Darling.mp3" },
+               { title: "One after 909", file: "musica/One after 909.mp3" },
+               { title: "Paper back writer", file: "musica/Paper back writer.mp3" },
+               { title: "Penny Laine", file: "musica/Penny Laine.mp3" },
+               { title: "Revolution", file: "musica/Revolution.mp3" },
+               { title: "She loves you", file: "musica/She loves you.mp3" },
+               { title: "Shes got a ticket to ride", file: "musica/Shes got a ticket to ride.mp3" },
+               { title: "Shes got the devil in her heart", file: "musica/Shes got the devil in her heart.mp3" },
+               { title: "Something", file: "musica/Something.mp3" },
+               { title: "Strawberry fields forever", file: "musica/Strawberry fields forever.mp3" },
+               { title: "Theres a place", file: "musica/Theres a place.mp3" },
+               { title: "Twist and shout", file: "musica/Twist and shout.mp3" },
+               { title: "We can work it out", file: "musica/We can work it out.mp3" },
+               { title: "Yesterday", file: "musica/Yesterday.mp3" }
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>

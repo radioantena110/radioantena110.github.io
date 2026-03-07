@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antena 110 - Radio En Línea</title>
+	<link rel="icon" type="image/x-icon" href="favicon.png">
+    <style>
+	/* Estilos para el Reproductor En Vivo */
+.live-stream-container {
+    background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+    border: 2px solid var(--primary);
+    border-radius: 15px;
+    padding: 15px; /* Bajamos un poco el padding */
+    width: 90%; /* Ocupa el 90% del ancho móvil */
+    max-width: 600px;
+    margin: 0 auto 50px auto;
+    display: flex;
+    flex-direction: row; /* Por defecto en fila */
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 0 20px rgba(29, 185, 84, 0.2);
+    box-sizing: border-box; /* Fundamental para que el padding no sume ancho */
+    overflow: hidden; /* Evita que el contenido salga del borde */
+}
+
+/* Ajuste específico para el reproductor de audio */
+.live-stream-container audio {
+    flex: 1; /* Esto obliga al audio a estirarse o encogerse según el espacio */
+    min-width: 0; /* Permite que el flexbox lo reduzca más allá de su ancho base */
+    height: 40px;
+}
+
+.live-badge {
+    background: #ff4b2b;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.stream-info { flex: 1; }
+.stream-info h2 { margin: 0; font-size: 1.2rem; }
+.stream-info p { margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.9rem; }
+
+/* Footer */
+footer {
+    margin-top: 80px;
+    padding: 40px 20px;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.footer-links {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--primary); }
+        :root {
+            --primary: #1db954;
+            --bg-dark: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Encabezado */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.intro {
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Grilla de Artistas */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .artist-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            transition: transform 0.3s ease, background 0.3s ease;
+            text-align: center;
+            text-decoration: none; /* Quita subrayado del link */
+            color: inherit;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .artist-card:hover {
+            transform: translateY(-10px);
+            background: #282828;
+            border-color: var(--primary);
+        }
+
+        .artist-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .artist-card h3 {
+            margin: 10px 0 5px 0;
+            font-size: 1.2rem;
+        }
+
+        .artist-card p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        /* Botón de Escuchar */
+        .btn-listen {
+            display: inline-block;
+            background: var(--primary);
+            color: black;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: transform 0.2s;
+        }
+
+        .artist-card:hover .btn-listen {
+            transform: scale(1.1);
+        }
+
+        /* Responsivo para móviles */
+        @media (max-width: 500px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+		<div align="center"><img src="favicon.png"></div>
+        <h1>Antena 110</h1>
+        <p class="intro">
+            Bienvenido a nuestra radio en línea. Explora los álbumes y artistas 
+            que han definido tendencias desde siempre. Elige un intérprete para empezar a escuchar.
+        </p>
+    </header>
+<section class="live-stream-container">
+    <div class="live-badge">En Vivo</div>
+    
+    <audio autoplay="" controls="controls"> <source src="http://giss.tv:8001/antena110.mp3" type="audio/mpeg" /></audio>
+</section>
+    <div class="grid-container">
+        
+        <a href="FrancoSimone/player.html" class="artist-card">
+            <img src="FrancoSimone/img/simone.png" alt="Artista 1">
+            <h3>Franco Simone</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+
+        <a href="Aerosmith/player.html" class="artist-card">
+            <img src="Aerosmith/img/aerosmith.png" alt="Artista 2">
+            <h3>Aerosmith</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+
+        <a href="Ataque77/player.html" class="artist-card">
+            <img src="Ataque77/img/ataque77.png" alt="Artista 2">
+            <h3>Ataque 77</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+		
+        <a href="Beatles/player.html" class="artist-card">
+            <img src="Beatles/img/beatles.png" alt="Artista 2">
+            <h3>The Beatles</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>		
+
+        <a href="Divididos/player.html" class="artist-card">
+            <img src="Divididos/img/divididos.png" alt="Artista 2">
+            <h3>Divididos</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>		
+
+        <a href="Fito/player.html" class="artist-card">
+            <img src="Fito/img/fito.png" alt="Artista 2">
+            <h3>Fito Paez</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>		
+--------------		
+        <a href="artista3.html" class="artist-card">
+            <img src="img png" alt="Artista 3">
+            <h3>Artista</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+
+		<a href="artista3.html" class="artist-card">
+            <img src="img png" alt="Artista 3">
+            <h3>Artista</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+		
+		<a href="artista3.html" class="artist-card">
+            <img src="img png" alt="Artista 3">
+            <h3>Artista</h3>
+            <span class="btn-listen">Escuchar ahora</span>
+        </a>
+        </div>
+<footer>
+<hr>
+    <p>&copy; 2026 Radio Antena 110. <a href="https://iosoft2022.github.io" target="_blank">IoSoft</a></p>
+    <p style="font-size: 0.8rem; margin-top: 10px;">Tu radio en línea al borde de la ciudad.</p>
+</footer>
+</body>
+</html>

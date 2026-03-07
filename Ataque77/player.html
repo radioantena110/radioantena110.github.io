@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn">
+        <span>«</span> Volver a la Radio
+    </a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">Ataque 77</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "Ataque 77",
+            cover: "img/ataque77.png", // Cambia por tu imagen
+            tracks: [
+               { title: "Crecer", file: "musica/02 - CRECER.mp3" },
+               { title: "Cuanta cerveza", file: "musica/02 - Cuanta cerveza.mp3" },
+               { title: "El jorobadito", file: "musica/02 - El jorobadito.mp3" },
+               { title: "Espadas y serpientes", file: "musica/02 - Espadas y serpientes.mp3" },
+               { title: "Cancion Inutil", file: "musica/03 - Cancion Inutil.mp3" },
+               { title: "Ojos de perro", file: "musica/03 Ojos de perro.mp3" },
+               { title: "Buenos Aires en llamas", file: "musica/04 - Buenos Aires en llamas.mp3" },
+               { title: "Cual es el precio", file: "musica/05 - Cual es el precio.mp3" },
+               { title: "El cielo puede esperar", file: "musica/08 - El cielo puede esperar.mp3" },
+               { title: "El Pobre", file: "musica/08 - El Pobre.mp3" },
+               { title: "Beatle", file: "musica/09 - Beatle.mp3" },
+               { title: "Por qué te vas", file: "musica/09 - Por qué te vas.mp3" },
+               { title: "Plaza de perros", file: "musica/10 - Plaza de perros.mp3" },
+               { title: "Hey Hey", file: "musica/10 Hey Hey.mp3" },
+               { title: "Arranca corazones", file: "musica/11 Arranca corazones.mp3" },
+               { title: "Jumper", file: "musica/12 - JUMPER.mp3" },
+               { title: "No me arrepiento de este amor", file: "musica/12 - No me arrepiento de este amor.mp3" },
+               { title: "Silent Hill", file: "musica/12 - Silent Hill.mp3" },
+               { title: "Exodo-Ska", file: "musica/17 Exodo-Ska.mp3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>
