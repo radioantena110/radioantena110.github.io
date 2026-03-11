@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn" title="Volver al inicio">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+    <span>Volver</span>
+	</a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">León Gieco</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "León Gieco",
+            cover: "img/Gieco.png", // Cambia por tu imagen
+            tracks: [
+               { title: "Al Atardecer", file: "musica/Al Atardecer.mp3" },
+               { title: "Bajo el sol de Bogotá", file: "musica/Bajo el sol de Bogotá.mp3" },
+               { title: "Cachito campeón de Corrientes", file: "musica/Cachito campeón de Corrientes.mp3" },
+               { title: "Cada día somos más", file: "musica/Cada día somos más.mp3" },
+               { title: "Canción de los plomos", file: "musica/Canción de los plomos.mp3" },
+               { title: "Canción para Carito", file: "musica/Canción para Carito.mp3" },
+               { title: "Cinco siglos igual", file: "musica/Cinco siglos igual.mp3" },
+               { title: "Cola de amor", file: "musica/Cola de amor.mp3" },
+               { title: "Cuánto tiempo por vivir", file: "musica/Cuánto tiempo por vivir.mp3" },
+               { title: "El fantasma de Canterville", file: "musica/El fantasma de Canterville.MP3" },
+               { title: "El que queda solo", file: "musica/El que queda solo.mp3" },
+               { title: "El rey lloró", file: "musica/El rey lloró.mp3" },
+               { title: "En el país de la libertad", file: "musica/En el país de la libertad.mp3" },
+               { title: "En la cintura de los pájaros", file: "musica/En la cintura de los pájaros.mp3" },
+               { title: "Familia Rodante", file: "musica/Familia Rodante.mp3" },
+               { title: "Halleluja", file: "musica/Halleluja.mp3" },
+               { title: "Hombres de hierro", file: "musica/Hombres de hierro.mp3" },
+               { title: "La cultura es la sonrisa", file: "musica/La cultura es la sonrisa.mp3" },
+               { title: "La mamá de Jimmy", file: "musica/La mamá de Jimmy.mp3" },
+               { title: "Leon Gieco - Bandidos Rurales", file: "musica/Leon Gieco - Bandidos Rurales.mp3" },
+               { title: "Leon Gieco - De igual a Igual", file: "musica/Leon Gieco - De igual a Igual.mp3" },
+               { title: "Leon Gieco - La Memoria", file: "musica/Leon Gieco - La Memoria.mp3" },
+               { title: "Los chacareros de dragones", file: "musica/Los chacareros de dragones.mp3" },
+               { title: "Los Salieris de Charly", file: "musica/Los Salieris de Charly.mp3" },
+               { title: "María del campo", file: "musica/María del campo.mp3" },
+               { title: "Me olvidé de los demás", file: "musica/Me olvidé de los demás.mp3" },
+               { title: "Para Bárbara", file: "musica/Para Bárbara.mp3" },
+               { title: "Pensar en nada", file: "musica/Pensar en nada.mp3" },
+               { title: "Plegaria a un labrador", file: "musica/Plegaria a un labrador.mp3" },
+               { title: "Príncipe azul", file: "musica/Príncipe azul.mp3" },
+               { title: "Sólo el amor (Silvio Rodríguez)", file: "musica/Sólo el amor (Silvio Rodríguez).mp3" },
+               { title: "Tocando el cielo", file: "musica/Tocando el cielo.mp3" },
+               { title: "Todos los caballos blancos", file: "musica/Todos los caballos blancos.mp3" },
+               { title: "Todos los días un poco", file: "musica/Todos los días un poco.mp3" },
+               { title: "Un Minuto", file: "musica/Un Minuto.mp3" },
+               { title: "Un poco de comprensión", file: "musica/Un poco de comprensión.MP3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>
