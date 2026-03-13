@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn" title="Volver al inicio">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+    <span>Volver</span>
+	</a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">Sergio Denis</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "Sergio Denis",
+            cover: "img/sergiodenis.png", // Cambia por tu imagen
+            tracks: [
+               { title: "Así Fue Nuestro Amor", file: "musica/Así Fue Nuestro Amor.mp3" },
+               { title: "Cada Vez Que Sale El Sol", file: "musica/Cada Vez Que Sale El Sol.mp3" },
+               { title: "Conclusiones", file: "musica/Conclusiones.mp3" },
+               { title: "Cuando Llega El Amor", file: "musica/Cuando Llega El Amor.mp3" },
+               { title: "Cuando Llegó La Hora", file: "musica/Cuando Llegó La Hora.mp3" },
+               { title: "Cómo Estás, Querida", file: "musica/Cómo Estás, Querida.mp3" },
+               { title: "Dame Luz", file: "musica/Dame Luz.mp3" },
+               { title: "Extrañarte En Abril", file: "musica/Extrañarte En Abril.mp3" },
+               { title: "Fatalidad", file: "musica/Fatalidad.mp3" },
+               { title: "Gigante, Chiquito", file: "musica/Gigante, Chiquito.mp3" },
+               { title: "La Humanidad", file: "musica/La Humanidad.mp3" },
+               { title: "Lucecitas", file: "musica/Lucecitas.mp3" },
+               { title: "Me Enamoré Sin Darme Cuenta", file: "musica/Me Enamoré Sin Darme Cuenta.mp3" },
+               { title: "Nada Hará Cambiar Mi Amor Por Ti", file: "musica/Nada Hará Cambiar Mi Amor Por Ti.mp3" },
+               { title: "Nunca Supe Más de Ti", file: "musica/Nunca Supe Más de Ti.mp3" },
+               { title: "Por La Simpleza De Mi Gente", file: "musica/Por La Simpleza De Mi Gente.mp3" },
+               { title: "Por Quererte Así, Por Buscarte Así", file: "musica/Por Quererte Así, Por Buscarte Así.mp3" },
+               { title: "Por Ti", file: "musica/Por Ti.mp3" },
+               { title: "Si Ella Se Va", file: "musica/Si Ella Se Va.mp3" },
+               { title: "Sólo Por Vos", file: "musica/Sólo Por Vos.mp3" },
+               { title: "Sólo Sabe Dios (Nuestro Desierto)", file: "musica/Sólo Sabe Dios (Nuestro Desierto).mp3" },
+               { title: "Te Llamo para Despedirme", file: "musica/Te Llamo para Despedirme.mp3" },
+               { title: "Te Quiero Tanto, No Me Preguntes Más", file: "musica/Te Quiero Tanto, No Me Preguntes Más.mp3" },
+               { title: "Un Hombre, Un Niño", file: "musica/Un Hombre, Un Niño.mp3" },
+               { title: "Un Poco Loco", file: "musica/Un Poco Loco.mp3" },
+               { title: "Un Poco Mas Entre Mis Brazos", file: "musica/Un Poco Mas Entre Mis Brazos.mp3" },
+               { title: "Vive", file: "musica/Vive.mp3" },
+               { title: "Vuelve A Casa Hermano", file: "musica/Vuelve A Casa Hermano.mp3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>

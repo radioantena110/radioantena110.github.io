@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn" title="Volver al inicio">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+    <span>Volver</span>
+	</a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">Sui Géneris</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "Sui Géneris",
+            cover: "img/sui.png", // Cambia por tu imagen
+            tracks: [
+               { title: "Amigo, vuelve a casa pronto", file: "musica/Amigo, vuelve a casa pronto.mp3" },
+               { title: "Aprendizaje", file: "musica/Aprendizaje.mp3" },
+               { title: "Bienvenidos al tren", file: "musica/Bienvenidos al tren.mp3" },
+               { title: "Botas locas", file: "musica/Botas locas.mp3" },
+               { title: "Canción para mi muerte", file: "musica/Canción para mi muerte.mp3" },
+               { title: "Confesiones de invierno", file: "musica/Confesiones de invierno.mp3" },
+               { title: "Cuando comenzamos a nacer", file: "musica/Cuando comenzamos a nacer.mp3" },
+               { title: "Cuando ya me empiece a quedar solo", file: "musica/Cuando ya me empiece a quedar solo.mp3" },
+               { title: "Dime quién me lo robó", file: "musica/Dime quién me lo robó.mp3" },
+               { title: "El tuerto y los ciegos", file: "musica/El tuerto y los ciegos.mp3" },
+               { title: "Estación", file: "musica/Estación.mp3" },
+               { title: "Instituciones", file: "musica/Instituciones.mp3" },
+               { title: "Juan Represión", file: "musica/Juan Represión.mp3" },
+               { title: "Las increíbles aventuras del Sr. Tijeras", file: "musica/Las increíbles aventuras del Sr. Tijeras.mp3" },
+               { title: "Lunes otra vez", file: "musica/Lunes otra vez.mp3" },
+               { title: "Mariel y el capitán", file: "musica/Mariel y el capitán.mp3" },
+               { title: "Mr. Jones", file: "musica/Mr. Jones.mp3" },
+               { title: "Música de fondo para cualquier fiesta animada", file: "musica/Música de fondo para cualquier fiesta animada.mp3" },
+               { title: "Natalio Ruiz", file: "musica/Natalio Ruiz.mp3" },
+               { title: "Nesecito", file: "musica/Nesecito.mp3" },
+               { title: "Para quién canto yo entonces", file: "musica/Para quién canto yo entonces.mp3" },
+               { title: "Pequeñas delicias de la vida conyugal", file: "musica/Pequeñas delicias de la vida conyugal.mp3" },
+               { title: "Quizás porque", file: "musica/Quizás porque.mp3" },
+               { title: "Rasguña las piedras", file: "musica/Rasguña las piedras.mp3" },
+               { title: "Tribulaciones, lamentos y ocaso de un tonto rey imaginario o no", file: "musica/Tribulaciones, lamentos y ocaso de un tonto rey imaginario o no.mp3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor Antena110</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <div class="player-card">
+	<a href="../index.html" class="back-btn" title="Volver al inicio">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+    </svg>
+    <span>Volver</span>
+	</a>
+        
+        
+        <div class="cover-wrapper">
+            <img id="cover-art" src="" alt="Portada">
+        </div>
+
+        <div class="track-info">
+            <h2 id="track-title">Cargando...</h2>
+            <p id="artist-name">Serú Girán</p>
+        </div>
+
+        <div class="progress-area">
+            <input type="range" id="progress-bar" value="0">
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">⏮</button>
+            <button id="play-btn" class="play-btn">▶</button>
+            <button id="next-btn">⏭</button>
+        </div>
+
+        <ul id="playlist" class="playlist">
+            </ul>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE LA PLANTILLA ---
+        const albumConfig = {
+            artist: "Serú Girán",
+            cover: "img/seru.png", // Cambia por tu imagen
+            tracks: [
+               { title: "A cada hombre a cada mujer", file: "musica/A cada hombre a cada mujer.mp3" },
+               { title: "Autos jets aviones barcos", file: "musica/Autos jets aviones barcos.mp3" },
+               { title: "Canción de Alicia en el pais", file: "musica/Canción de Alicia en el pais.mp3" },
+               { title: "Canción de Hollywood", file: "musica/Canción de Hollywood.mp3" },
+               { title: "Cinema verité", file: "musica/Cinema verité.mp3" },
+               { title: "Cuanto tiempo más llevará", file: "musica/Cuanto tiempo más llevará.mp3" },
+               { title: "Dejame entrar", file: "musica/Dejame entrar.mp3" },
+               { title: "Desarma y sangra", file: "musica/Desarma y sangra.mp3" },
+               { title: "Eiti leda", file: "musica/Eiti leda.mp3" },
+               { title: "El mendigo en el andén", file: "musica/El mendigo en el andén.mp3" },
+               { title: "En la vereda del sol", file: "musica/En la vereda del sol.mp3" },
+               { title: "Encuentro con el diablo", file: "musica/Encuentro con el diablo.mp3" },
+               { title: "Ese tren", file: "musica/Ese tren.mp3" },
+               { title: "Esperando nacer", file: "musica/Esperando nacer.mp3" },
+               { title: "Frecuencia Modulada", file: "musica/Frecuencia Modulada.mp3" },
+               { title: "José Mercado", file: "musica/José Mercado.mp3" },
+               { title: "La grasa de las capitales", file: "musica/La grasa de las capitales.mp3" },
+               { title: "Llorando en el espejo", file: "musica/Llorando en el espejo.mp3" },
+               { title: "Mientras miro las nuevas olas", file: "musica/Mientras miro las nuevas olas.mp3" },
+               { title: "Mundo agradable", file: "musica/Mundo agradable.mp3" },
+               { title: "No Llores Por Mi, Argentina", file: "musica/No Llores Por Mi, Argentina.mp3" },
+               { title: "No puedo dejar", file: "musica/No puedo dejar.mp3" },
+               { title: "Nos veremos otra vez", file: "musica/Nos veremos otra vez.mp3" },
+               { title: "Parado en medio de la vida", file: "musica/Parado en medio de la vida.mp3" },
+               { title: "Peperina", file: "musica/Peperina.mp3" },
+               { title: "Perro Andaluz", file: "musica/Perro Andaluz.mp3" },
+               { title: "Popotito", file: "musica/Popotito.mp3" },
+               { title: "Salir de la melancolía", file: "musica/Salir de la melancolía.mp3" },
+               { title: "San Francisco y el lobo", file: "musica/San Francisco y el lobo.mp3" },
+               { title: "Seminare", file: "musica/Seminare.mp3" },
+               { title: "Si me das tu amor", file: "musica/Si me das tu amor.mp3" },
+               { title: "Viernes 3 AM", file: "musica/Viernes 3 AM.mp3" },
+               { title: "Voy a mil", file: "musica/Voy a mil.mp3" },
+            ]
+        };
+
+        // --- LÓGICA DEL REPRODUCTOR ---
+        let currentTrackIndex = 0;
+        const audio = new Audio();
+        
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const trackTitle = document.getElementById('track-title');
+        const playlistUI = document.getElementById('playlist');
+
+        function init() {
+            document.getElementById('artist-name').innerText = albumConfig.artist;
+            document.getElementById('cover-art').src = albumConfig.cover;
+            
+            // Cargar Playlist
+            albumConfig.tracks.forEach((track, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${index + 1}. ${track.title}</span>`;
+                li.addEventListener('click', () => loadAndPlay(index));
+                playlistUI.appendChild(li);
+            });
+
+            loadTrack(0);
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = albumConfig.tracks[index];
+            audio.src = track.file;
+            trackTitle.innerText = track.title;
+            
+            // Marcar activa en la lista
+            const items = playlistUI.querySelectorAll('li');
+            items.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+
+        function loadAndPlay(index) {
+            loadTrack(index);
+            audio.play();
+            playBtn.innerText = "⏸";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerText = "⏸";
+            } else {
+                audio.pause();
+                playBtn.innerText = "▶";
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentTrackIndex = (currentTrackIndex - 1 + albumConfig.tracks.length) % albumConfig.tracks.length;
+            loadAndPlay(currentTrackIndex);
+        });
+
+        // Actualizar barra de progreso
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress || 0;
+        });
+
+        // Saltos en la barra
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+
+        // Al terminar una canción, pasar a la siguiente
+        audio.addEventListener('ended', () => nextBtn.click());
+
+        init();
+    </script>
+</body>
+</html>
